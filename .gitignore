@@ -1,0 +1,14 @@
+data-agent-pro-backend/logs/*
+!data-agent-pro-backend/logs/.gitkeep
+
+data-agent-pro-backend/test/reports/*
+!data-agent-pro-backend/test/reports/.gitkeep
+
+data-agent-pro-backend/test/failure_cases/accepted/*.json
+data-agent-pro-backend/test/failure_cases/pending/*.json
+data-agent-pro-backend/test/failure_cases/rejected/*.json
+!data-agent-pro-backend/test/failure_cases/accepted/.gitkeep
+!data-agent-pro-backend/test/failure_cases/pending/.gitkeep
+!data-agent-pro-backend/test/failure_cases/rejected/.gitkeep
+
+docs/

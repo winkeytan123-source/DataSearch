@@ -1,0 +1,35 @@
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	extract_keywords(extract_keywords)
+	column_recall(column_recall)
+	value_recall(value_recall)
+	metric_recall(metric_recall)
+	merge_retrieved_info(merge_retrieved_info)
+	filter_table_info(filter_table_info)
+	filter_metric_info(filter_metric_info)
+	add_context(add_context)
+	generate_sql(generate_sql)
+	validate_sql(validate_sql)
+	correct_sql(correct_sql)
+	execute_sql(execute_sql)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> extract_keywords;
+	add_context --> generate_sql;
+	column_recall --> merge_retrieved_info;
+	correct_sql --> execute_sql;
+	extract_keywords --> column_recall;
+	extract_keywords --> metric_recall;
+	extract_keywords --> value_recall;
+	filter_metric_info --> add_context;
+	filter_table_info --> add_context;
+	generate_sql --> validate_sql;
+	merge_retrieved_info --> filter_metric_info;
+	merge_retrieved_info --> filter_table_info;
+	metric_recall --> merge_retrieved_info;
+	validate_sql -.-> correct_sql;
+	validate_sql -.-> execute_sql;
+	value_recall --> merge_retrieved_info;
+	execute_sql --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

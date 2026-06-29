@@ -1,0 +1,114 @@
+[
+  {
+    "id": "sec_normal_select",
+    "description": "正常单表聚合查询应通过",
+    "sql": "SELECT SUM(order_amount) FROM fact_order",
+    "expected_valid": true,
+    "expected_rule": null
+  },
+  {
+    "id": "sec_select_star",
+    "description": "禁止 SELECT *",
+    "sql": "SELECT * FROM fact_order",
+    "expected_valid": false,
+    "expected_rule": "select_star"
+  },
+  {
+    "id": "sec_multi_statement",
+    "description": "禁止多语句执行",
+    "sql": "SELECT 1; SELECT 2",
+    "expected_valid": false,
+    "expected_rule": "multi_statement"
+  },
+  {
+    "id": "sec_insert",
+    "description": "禁止 INSERT 语句",
+    "sql": "INSERT INTO fact_order (order_id) VALUES ('test')",
+    "expected_valid": false,
+    "expected_rule": "prohibited_statement"
+  },
+  {
+    "id": "sec_delete",
+    "description": "禁止 DELETE 语句",
+    "sql": "DELETE FROM fact_order WHERE order_id = 'test'",
+    "expected_valid": false,
+    "expected_rule": "prohibited_statement"
+  },
+  {
+    "id": "sec_drop",
+    "description": "禁止 DROP 语句",
+    "sql": "DROP TABLE fact_order",
+    "expected_valid": false,
+    "expected_rule": "prohibited_statement"
+  },
+  {
+    "id": "sec_update",
+    "description": "禁止 UPDATE 语句",
+    "sql": "UPDATE fact_order SET order_amount = 0 WHERE 1=1",
+    "expected_valid": false,
+    "expected_rule": "prohibited_statement"
+  },
+  {
+    "id": "sec_truncate",
+    "description": "禁止 TRUNCATE 语句",
+    "sql": "TRUNCATE TABLE fact_order",
+    "expected_valid": false,
+    "expected_rule": "prohibited_statement"
+  },
+  {
+    "id": "sec_sleep_injection",
+    "description": "禁止 SLEEP 函数注入",
+    "sql": "SELECT SLEEP(100) FROM fact_order",
+    "expected_valid": false,
+    "expected_rule": "malicious_sql"
+  },
+  {
+    "id": "sec_benchmark_injection",
+    "description": "禁止 BENCHMARK 函数注入",
+    "sql": "SELECT BENCHMARK(1000000, MD5('x')) FROM fact_order",
+    "expected_valid": false,
+    "expected_rule": "malicious_sql"
+  },
+  {
+    "id": "sec_info_schema",
+    "description": "禁止访问 information_schema",
+    "sql": "SELECT table_name FROM information_schema.tables",
+    "expected_valid": false,
+    "expected_rule": "malicious_sql"
+  },
+  {
+    "id": "sec_unauthorized_table",
+    "description": "禁止访问未授权表",
+    "sql": "SELECT user_id FROM sys_users",
+    "expected_valid": false,
+    "expected_rule": "unauthorized_table"
+  },
+  {
+    "id": "sec_unauthorized_column",
+    "description": "禁止访问未授权字段",
+    "sql": "SELECT password FROM dim_customer",
+    "expected_valid": false,
+    "expected_rule": "unauthorized_column"
+  },
+  {
+    "id": "sec_explicit_db",
+    "description": "禁止显式指定库名",
+    "sql": "SELECT SUM(order_amount) FROM dw.fact_order",
+    "expected_valid": false,
+    "expected_rule": "unauthorized_catalog"
+  },
+  {
+    "id": "sec_missing_from",
+    "description": "SELECT 必须有 FROM",
+    "sql": "SELECT 1",
+    "expected_valid": false,
+    "expected_rule": "missing_from"
+  },
+  {
+    "id": "sec_normal_join",
+    "description": "正常多表 JOIN 查询应通过",
+    "sql": "SELECT r.region_name, SUM(f.order_amount) FROM fact_order f JOIN dim_region r ON f.region_id = r.region_id GROUP BY r.region_name",
+    "expected_valid": true,
+    "expected_rule": null
+  }
+]

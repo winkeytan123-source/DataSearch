@@ -1,0 +1,137 @@
+[
+  {
+    "id": "sales_total_all",
+    "question": "统计全部订单的销售总额",
+    "gold_sql": "SELECT ROUND(SUM(order_amount), 2) AS total_sales FROM fact_order",
+    "expected_tables": ["fact_order"],
+    "expected_columns": ["order_amount"],
+    "expected_metrics": ["GMV"],
+    "expected_conditions": [],
+    "tags": ["aggregation", "single_table", "easy"]
+  },
+  {
+    "id": "order_count_all",
+    "question": "一共有多少笔订单",
+    "gold_sql": "SELECT COUNT(*) AS order_count FROM fact_order",
+    "expected_tables": ["fact_order"],
+    "expected_columns": ["order_id"],
+    "expected_conditions": [],
+    "tags": ["count", "single_table", "easy"]
+  },
+  {
+    "id": "sales_total_huabei",
+    "question": "统计华北地区的销售总额",
+    "gold_sql": "SELECT ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_region r ON f.region_id = r.region_id WHERE r.region_name = '华北'",
+    "expected_tables": ["fact_order", "dim_region"],
+    "expected_columns": ["order_amount", "region_name", "region_id"],
+    "expected_metrics": ["GMV"],
+    "expected_values": ["华北"],
+    "expected_conditions": ["华北"],
+    "tags": ["join", "region_filter", "value_recall"]
+  },
+  {
+    "id": "sales_by_region",
+    "question": "按大区统计销售额，并按销售额从高到低排序",
+    "gold_sql": "SELECT r.region_name, ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_region r ON f.region_id = r.region_id GROUP BY r.region_name ORDER BY total_sales DESC",
+    "expected_tables": ["fact_order", "dim_region"],
+    "expected_columns": ["region_name", "order_amount", "region_id"],
+    "expected_metrics": ["GMV"],
+    "expected_conditions": ["GROUP BY", "ORDER BY"],
+    "tags": ["group_by", "order_by", "join"]
+  },
+  {
+    "id": "top3_category_sales",
+    "question": "销售额最高的前三个商品品类是什么",
+    "gold_sql": "SELECT p.category, ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_product p ON f.product_id = p.product_id GROUP BY p.category ORDER BY total_sales DESC LIMIT 3",
+    "expected_tables": ["fact_order", "dim_product"],
+    "expected_columns": ["category", "order_amount", "product_id"],
+    "expected_metrics": ["GMV"],
+    "expected_conditions": ["GROUP BY", "ORDER BY", "LIMIT 3"],
+    "tags": ["top_n", "category", "join"]
+  },
+  {
+    "id": "apple_brand_sales",
+    "question": "苹果品牌商品的销售额是多少",
+    "gold_sql": "SELECT ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_product p ON f.product_id = p.product_id WHERE p.brand = '苹果'",
+    "expected_tables": ["fact_order", "dim_product"],
+    "expected_columns": ["order_amount", "brand", "product_id"],
+    "expected_metrics": ["GMV"],
+    "expected_values": ["苹果"],
+    "expected_conditions": ["苹果"],
+    "tags": ["brand_filter", "value_recall", "join"]
+  },
+  {
+    "id": "digital_category_order_quantity",
+    "question": "手机数码品类一共卖出了多少件商品",
+    "gold_sql": "SELECT SUM(f.order_quantity) AS total_quantity FROM fact_order f JOIN dim_product p ON f.product_id = p.product_id WHERE p.category = '手机数码'",
+    "expected_tables": ["fact_order", "dim_product"],
+    "expected_columns": ["order_quantity", "category", "product_id"],
+    "expected_values": ["手机数码"],
+    "expected_conditions": ["手机数码"],
+    "tags": ["category_filter", "measure", "value_recall"]
+  },
+  {
+    "id": "gold_member_sales",
+    "question": "黄金会员贡献了多少销售额",
+    "gold_sql": "SELECT ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_customer c ON f.customer_id = c.customer_id WHERE c.member_level = '黄金'",
+    "expected_tables": ["fact_order", "dim_customer"],
+    "expected_columns": ["order_amount", "member_level", "customer_id"],
+    "expected_metrics": ["GMV"],
+    "expected_values": ["黄金"],
+    "expected_conditions": ["黄金"],
+    "tags": ["customer_filter", "member_level", "join"]
+  },
+  {
+    "id": "female_customer_order_count",
+    "question": "女性客户下了多少笔订单",
+    "gold_sql": "SELECT COUNT(*) AS order_count FROM fact_order f JOIN dim_customer c ON f.customer_id = c.customer_id WHERE c.gender = '女'",
+    "expected_tables": ["fact_order", "dim_customer"],
+    "expected_columns": ["gender", "customer_id"],
+    "expected_values": ["女"],
+    "expected_conditions": ["女"],
+    "tags": ["customer_filter", "count", "join"]
+  },
+  {
+    "id": "february_sales_total",
+    "question": "统计2025年2月的销售总额",
+    "gold_sql": "SELECT ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_date d ON f.date_id = d.date_id WHERE d.year = 2025 AND d.month = 2",
+    "expected_tables": ["fact_order", "dim_date"],
+    "expected_columns": ["order_amount", "date_id", "year", "month"],
+    "expected_metrics": ["GMV"],
+    "expected_conditions": ["2025", "2"],
+    "tags": ["time_filter", "join"]
+  },
+  {
+    "id": "monthly_sales_q1",
+    "question": "按月份统计2025年一季度的销售额",
+    "gold_sql": "SELECT d.month, ROUND(SUM(f.order_amount), 2) AS total_sales FROM fact_order f JOIN dim_date d ON f.date_id = d.date_id WHERE d.year = 2025 AND d.quarter = 'Q1' GROUP BY d.month ORDER BY d.month",
+    "expected_tables": ["fact_order", "dim_date"],
+    "expected_columns": ["month", "quarter", "year", "order_amount", "date_id"],
+    "expected_metrics": ["GMV"],
+    "expected_values": ["Q1"],
+    "expected_conditions": ["Q1", "GROUP BY", "ORDER BY"],
+    "tags": ["time_filter", "group_by", "join"]
+  },
+  {
+    "id": "aov_by_region",
+    "question": "按大区统计平均订单金额",
+    "gold_sql": "SELECT r.region_name, ROUND(AVG(f.order_amount), 2) AS avg_order_amount FROM fact_order f JOIN dim_region r ON f.region_id = r.region_id GROUP BY r.region_name ORDER BY avg_order_amount DESC",
+    "expected_tables": ["fact_order", "dim_region"],
+    "expected_columns": ["region_name", "order_amount", "region_id"],
+    "expected_metrics": ["AOV"],
+    "expected_conditions": ["AVG", "GROUP BY"],
+    "tags": ["metric", "aov", "group_by"]
+  },
+  {
+    "id": "complex_top_category_by_region_q1",
+    "question": "统计2025年第一季度每个大区销售额最高的商品品类及其销售额",
+    "gold_sql": "SELECT t.region_name, t.category, t.total_sales FROM (SELECT r.region_name, p.category, ROUND(SUM(f.order_amount), 2) AS total_sales, ROW_NUMBER() OVER (PARTITION BY r.region_name ORDER BY SUM(f.order_amount) DESC) AS rn FROM fact_order f JOIN dim_region r ON f.region_id = r.region_id JOIN dim_product p ON f.product_id = p.product_id JOIN dim_date d ON f.date_id = d.date_id WHERE d.year = 2025 AND d.quarter = 'Q1' GROUP BY r.region_name, p.category) t WHERE t.rn = 1",
+    "expected_tables": ["fact_order", "dim_region", "dim_product", "dim_date"],
+    "expected_columns": ["region_name", "category", "order_amount", "product_id", "region_id", "date_id", "year", "quarter"],
+    "expected_metrics": ["GMV"],
+    "expected_values": ["Q1"],
+    "expected_conditions": ["2025", "Q1", "GROUP BY", "ORDER BY", "ROW_NUMBER"],
+    "numeric_tolerance": 0.01,
+    "tags": ["complex", "window_function", "multi_join", "time_filter", "top_n", "hard"]
+  }
+]
